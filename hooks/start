@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -eu
+
+juju-log "Starting varnish"
+service varnish restart || service varnish start
+
+port=`config-get port`
+juju-log "opening varnish listing port ${port}"
+open-port $port/tcp

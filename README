@@ -1,0 +1,69 @@
+Juju Charm: varnish
+Author: Nathan Williams
+
+0. INTRODUCTION
+########################################################################
+
+Varnish Cache is a "web application accelerator", or an HTTP reverse 
+proxy. By deploying varnish in front of an HTTP server, it can speed up 
+delivery by a factor of 300-1000x, depending on configuration.
+
+What makes Varnish Cache so powerful is the Varnish Cache Language (VCL). By 
+using VCL to configure Varnish Cache for your site, you can see 
+*remarkable* performance improvements.
+
+
+1. REQUIREMENTS
+########################################################################
+Varnish Cache requires a backend that serves content with HTTP. 
+ 
+2. GETTING STARTED DEPLOYING VARNISH
+########################################################################
+
+Bootstrap your juju environment:
+
+    juju bootstrap
+
+Tune your varnish deployment:
+
+The varnish charm has been set up to use a round-robin load-balancer 
+that distributes the load between your HTTP backends. It also includes 
+some common-sense tuning tweaks in hooks/extra.vcl.
+
+If you wish to add extra (application-specific?) configuration, feel 
+free to add your VCL changes to hooks/extra.vcl. It shouldn't interfere 
+with the charm deployment, and will retain the round-robin director as 
+as long as you keep the following line in your vcl_receive:
+
+    set req.backend = balance;
+
+Deploy a varnish (reverse-proxy) instance:
+
+    juju deploy varnish
+
+Expose the service:
+
+    juju expose varnish
+
+Connect varnish and wordpress:
+
+    juju add-relation varnish wordpress
+
+4. MORE INFORMATION
+########################################################################
+To verify Varnish Cache is delivering cached content, check the HTTP 
+headers by running the following command twice:
+
+    curl -I http://<varnish-instance>/
+
+For more information about Varnish Cache, check out their official docs:
+
+    https://www.varnish-cache.org/docs/3.0/
+
+5. IMPROVEMENTS? BUGS?
+########################################################################
+If you find a bug, or know any optimization tricks that are application 
+agnostic, let us know!
+
+6. THE END
+########################################################################

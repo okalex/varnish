@@ -1,0 +1,8 @@
+#!/bin/bash
+
+juju-log "Stopping varnish on on ${JUJU_UNIT_NAME}"
+service varnish stop || :
+
+port=`config-get port`
+juju-log "Closing varnish service port ${port}"
+close-port $port/tcp

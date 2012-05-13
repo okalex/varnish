@@ -1,0 +1,4 @@
+#!/bin/sh
+
+port=`config-get port`
+relation-set port=$port

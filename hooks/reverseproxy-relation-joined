@@ -1,0 +1,2 @@
+#!/bin/sh
+juju-log "${JUJU_REMOTE_UNIT} joined"

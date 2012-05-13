@@ -1,0 +1,57 @@
+#!/bin/bash
+
+set -eu
+
+juju-log "${JUJU_REMOTE_UNIT} modified its settings"
+
+# Retrieve members list
+members=$(relation-list)
+
+# Tear down service if no relations
+if [ -z "${members}" ]; then
+  > /etc/varnish/default.vcl
+  service varnish stop
+  exit 0
+fi
+
+# Back up last config
+mv /etc/varnish/default.vcl{,.last}
+
+# Build backend list
+for member in $members; do
+  unit_port=`relation-get port $member`
+  unit_name=$(echo $member | sed -e "s/\///g")
+  unit_ip=`relation-get private-address $member`
+  cat >> /etc/varnish/default.vcl << EOF
+backend $unit_name {
+  .host = "${unit_ip}";
+  .port ="${unit_port}";
+  .probe = {
+            .url = "/";
+            .interval = 5s;
+            .timeout = 1s;
+            .window = 5;
+            .threshold = 3;
+  }
+}
+EOF
+done
+
+# Build round-robin director
+echo 'director balance round-robin {' >> /etc/varnish/default.vcl
+
+for member in $members; do
+  unit_name=$(echo $member | sed -e "s/\///g")
+ cat >> /etc/varnish/default.vcl << EOF
+  { .backend = $unit_name; }
+EOF
+done
+
+echo "}" >> /etc/varnish/default.vcl
+
+# Activate directory and some hit increasing tuning
+cat hooks/extra.vcl >> /etc/varnish/default.vcl
+
+juju-log "Reloading service configuration"
+service varnish reload || service varnish restart
+
