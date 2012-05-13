@@ -12,9 +12,15 @@ What makes Varnish Cache so powerful is the Varnish Cache Language (VCL). By
 using VCL to configure Varnish Cache for your site, you can see 
 *remarkable* performance improvements.
 
+This varnish charm has also been set up to use a self-policing, round-
+robin load-balancer (director) that distributes the load between your 
+HTTP backends. Any backends defined by related website relations will 
+be monitored, and in the event that they repeatedly fail to respond, 
+Varnish Cache will stop sending it requests until it is healthy.
 
 1. REQUIREMENTS
 ########################################################################
+
 Varnish Cache requires a backend that serves content with HTTP. 
  
 2. GETTING STARTED DEPLOYING VARNISH
@@ -23,19 +29,6 @@ Varnish Cache requires a backend that serves content with HTTP.
 Bootstrap your juju environment:
 
     juju bootstrap
-
-Tune your varnish deployment:
-
-The varnish charm has been set up to use a round-robin load-balancer 
-that distributes the load between your HTTP backends. It also includes 
-some common-sense tuning tweaks in hooks/extra.vcl.
-
-If you wish to add extra (application-specific?) configuration, feel 
-free to add your VCL changes to hooks/extra.vcl. It shouldn't interfere 
-with the charm deployment, and will retain the round-robin director as 
-as long as you keep the following line in your vcl_receive:
-
-    set req.backend = balance;
 
 Deploy a varnish (reverse-proxy) instance:
 
@@ -48,6 +41,25 @@ Expose the service:
 Connect varnish and wordpress:
 
     juju add-relation varnish wordpress
+
+3. CONFIGURING VARNISH
+########################################################################
+Configuration options:
+
+The varnish charm allows you to configure varnish's listening port in 
+your own config.yaml.
+
+Tune your Varnish Cache deployment:
+
+It also includes some common-sense tuning tweaks in hooks/extra.vcl.
+
+If you wish to add extra (application-specific?) configuration, feel
+free to add your VCL changes to hooks/extra.vcl. It shouldn't interfere
+with the charm deployment, and will retain the round-robin director as
+as long as you keep the following line in your vcl_receive:
+
+    set req.backend = balance;
+
 
 4. MORE INFORMATION
 ########################################################################
@@ -67,3 +79,7 @@ agnostic, let us know!
 
 6. THE END
 ########################################################################
+To destroy all your services, you can run:
+
+    juju destroy-environment
+
