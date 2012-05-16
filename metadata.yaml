@@ -1,5 +1,6 @@
 name: varnish
 summary: state of the art, high-performance web accelerator
+maintainer: "Nathan Williams <nathan@nathanewilliams.com>"
 description: |
   Varnish Cache is a state of the art web accelerator written with
   performance and flexibility in mind.  Varnish Cache stores web pages
