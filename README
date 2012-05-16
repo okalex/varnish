@@ -51,10 +51,10 @@ your own config.yaml.
 
 Tune your Varnish Cache deployment:
 
-It also includes some common-sense tuning tweaks in hooks/extra.vcl.
+It also includes some common-sense tuning tweaks in data/extra.vcl.
 
 If you wish to add extra (application-specific?) configuration, feel
-free to add your VCL changes to hooks/extra.vcl. It shouldn't interfere
+free to add your VCL changes to data/extra.vcl. It shouldn't interfere
 with the charm deployment, and will retain the round-robin director as
 as long as you keep the following line in your vcl_receive:
 

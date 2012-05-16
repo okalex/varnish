@@ -1,0 +1,9 @@
+#!/bin/bash
+
+set -eu
+
+juju-log "Running vsftpd charm upgrade"
+hooks/stop
+hooks/install
+hooks/start
+hooks/reverseproxy-relation-changed
