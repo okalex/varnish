@@ -66,7 +66,11 @@ as long as you keep the following line in your vcl_receive:
 To verify Varnish Cache is delivering cached content, check the HTTP 
 headers by running the following command twice:
 
-    curl -I http://<varnish-instance>/
+    curl -I -H "Host: <backend address>" http://<varnish address>/
+
+To verify the site content is delivered from the backend:
+
+    curl -H "Host: 192.168.122.242" http://192.168.122.111/
 
 For more information about Varnish Cache, check out their official docs:
 
