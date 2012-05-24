@@ -2,29 +2,29 @@
 
 set -eu
 
-juju-log "${JUJU_REMOTE_UNIT} modified its settings"
-
-# Retrieve members list
+juju-log "Getting relation members"
 members=$(relation-list)
 
 # Tear down service if no relations
-if [ -z "${members}" ]; then
+if [ $(relation-ids) == [] ]; then
+  juju-log "Pausing down unrelated varnish service"
   > /etc/varnish/default.vcl
   service varnish stop
   exit 0
 fi
 
 # Back up last config
+juju-log "backing up config"
 mv /etc/varnish/default.vcl{,.last}
 
 # Build backend list
+juju-log "Building backend list"
 for member in $members; do
   unit_port=`relation-get port $member`
-  unit_name=$(echo $member | sed -e "s/\///g")
-  unit_ip=`relation-get private-address $member`
+  unit_addr=`relation-get hostname $member`
   cat >> /etc/varnish/default.vcl << EOF
-backend $unit_name {
-  .host = "${unit_ip}";
+backend $unit_addr {
+  .host = "${unit_addr}";
   .port ="${unit_port}";
   .probe = {
             .url = "/";
@@ -38,20 +38,23 @@ EOF
 done
 
 # Build round-robin director
+juju-log "Constructing round-robin director"
 echo 'director balance round-robin {' >> /etc/varnish/default.vcl
 
 for member in $members; do
-  unit_name=$(echo $member | sed -e "s/\///g")
- cat >> /etc/varnish/default.vcl << EOF
-  { .backend = $unit_name; }
+  unit_addr=`relation-get hostname $member`
+  cat >> /etc/varnish/default.vcl << EOF
+  { .backend = $unit_addr; }
 EOF
 done
 
 echo "}" >> /etc/varnish/default.vcl
 
 # Activate directory and some hit increasing tuning
+juju-log "loading additional varnish config"
 cat data/extra.vcl >> /etc/varnish/default.vcl
 
+# Reload configuration
 juju-log "Reloading service configuration"
 service varnish reload || service varnish restart
 

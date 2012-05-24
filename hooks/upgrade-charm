@@ -2,7 +2,7 @@
 
 set -eu
 
-juju-log "Running vsftpd charm upgrade"
+juju-log "Running charm upgrade"
 hooks/stop
 hooks/install
 hooks/start

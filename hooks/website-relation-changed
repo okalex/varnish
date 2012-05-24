@@ -1,4 +1,9 @@
 #!/bin/sh
 
+juju log "Setting relation port and hostname"
 port=`config-get port`
-relation-set port=$port
+hostname=`hostname -f`
+
+for relation_id in $(relation-ids); do
+  relation-set -r $relation_id port=$port hostname=$hostname
+done

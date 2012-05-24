@@ -2,22 +2,8 @@
 
 set -eu
 
-juju-log "Installing varnish with ${JUJU_UNIT_NAME}"
+juju-log "Installing varnish on ${JUJU_UNIT_NAME}"
 DEBIAN_FRONTEND=noninteractive apt-get -y -qq install varnish
 
-port=`config-get port`
-
-juju-log "configuring varnish after install"
 mkdir -p /var/lib/varnish/default
-cat > /etc/default/varnish <<EOF
-START=yes
-NFILES=131072
-MEMLOCK=82000
-DAEMON_OPTS="-a :${port} \
-             -T localhost:6082 \
-             -f /etc/varnish/default.vcl \
-             -S /etc/varnish/secret \
-             -s file,/var/lib/varnish/default/varnish_storage.bin,1G"
-EOF
 
-open-port $port/tcp

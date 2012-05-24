@@ -2,9 +2,9 @@
 
 set -eu
 
+port=`config-get port`
 juju-log "Starting varnish"
 service varnish restart || service varnish start
 
-port=`config-get port`
 juju-log "opening varnish listing port ${port}"
 open-port $port/tcp
