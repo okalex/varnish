@@ -22,8 +22,12 @@ juju-log "Building backend list"
 for member in $members; do
   unit_port=`relation-get port $member`
   unit_addr=`relation-get hostname $member`
+# replace . with a in IPs to produce a valid varnish service name
+# TODO: Instead of IP ADDR, MAY NEED TO USE member because FIRST Char NEEDS
+# to not be a number
+  unit_name=${unit_addr//\./a}
   cat >> /etc/varnish/default.vcl << EOF
-backend $unit_addr {
+backend $unit_name {
   .host = "${unit_addr}";
   .port ="${unit_port}";
   .probe = {
@@ -43,8 +47,9 @@ echo 'director balance round-robin {' >> /etc/varnish/default.vcl
 
 for member in $members; do
   unit_addr=`relation-get hostname $member`
+  unit_name=${unit_addr//\./a}
   cat >> /etc/varnish/default.vcl << EOF
-  { .backend = $unit_addr; }
+  { .backend = $unit_name; }
 EOF
 done
 
