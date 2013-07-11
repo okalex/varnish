@@ -11,6 +11,8 @@ description: |
   configuration language * Load balancing with health checking of
   backends * Partial support for ESI - Edge Side Includes * URL
   rewriting * Graceful handling of "dead" backends
+categories:
+    - cache-proxy
 provides:
   website:
     interface: http
