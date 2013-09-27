@@ -23,7 +23,7 @@ for member in $members; do
   unit_port=`relation-get port $member`
   unit_addr=`relation-get hostname $member`
 # replace / in the member name to produce a valid varnish service name
-  unit_name=${member//\//}
+  unit_name=${member//[\-\/]/}
   cat >> /etc/varnish/default.vcl << EOF
 backend $unit_name {
   .host = "${unit_addr}";
